@@ -24,6 +24,8 @@ app.get("/search", (req, res) => {
     });
 });
 
-app.listen(3000, () => {
-    console.log("Kimchi API running");
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log(`Kimchi API running on port ${PORT}`);
 });
