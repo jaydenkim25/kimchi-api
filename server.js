@@ -31,39 +31,33 @@ app.get("/search", async (req, res) => {
                 params: {
                     q: query,
                     format: "json",
-                    no_html: 1
+                    no_html: 1,
+                    skip_disambig: 1
+                },
+                headers: {
+                    "User-Agent": "Kimchi Search Engine"
                 }
             }
         );
 
 
         res.json({
-
             search: query,
-
-            overview:
-                response.data.AbstractText ||
-                "No overview found.",
-
-            source:
-                response.data.AbstractSource ||
-                "DuckDuckGo",
-
-            sourceURL:
-                response.data.AbstractURL ||
-                ""
-
+            overview: response.data.AbstractText || "No overview found",
+            source: response.data.AbstractSource || "DuckDuckGo",
+            sourceURL: response.data.AbstractURL || "",
+            related: response.data.RelatedTopics || []
         });
 
 
     } catch (error) {
 
-        console.log(error);
+        console.log("DuckDuckGo error:");
+        console.log(error.message);
 
         res.status(500).json({
-
-            error: "DuckDuckGo search failed"
-
+            error: "DuckDuckGo search failed",
+            details: error.message
         });
 
     }
@@ -73,9 +67,6 @@ app.get("/search", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-
 app.listen(PORT, () => {
-
     console.log(`Kimchi API running on port ${PORT}`);
-
 });
