@@ -27,6 +27,9 @@ app.get("/search", async (req, res) => {
 
     try {
 
+        console.log("Searching DuckDuckGo for:", query);
+
+
         const response = await axios.get(
             "https://html.duckduckgo.com/html/",
             {
@@ -35,12 +38,19 @@ app.get("/search", async (req, res) => {
                 },
 
                 headers: {
-                    "User-Agent": "Mozilla/5.0 Kimchi Browser"
+                    "User-Agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
+
+                    "Accept":
+                    "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
                 },
 
-                timeout: 10000
+                timeout: 30000
             }
         );
+
+
+        console.log("DuckDuckGo responded");
 
 
         const $ = cheerio.load(response.data);
@@ -70,9 +80,9 @@ app.get("/search", async (req, res) => {
             if (title && url) {
 
                 results.push({
-                    title: title,
-                    url: url,
-                    snippet: snippet
+                    title,
+                    url,
+                    snippet
                 });
 
             }
@@ -83,7 +93,7 @@ app.get("/search", async (req, res) => {
         res.json({
             search: query,
             count: results.length,
-            results: results
+            results
         });
 
 
@@ -91,6 +101,7 @@ app.get("/search", async (req, res) => {
 
         console.log("DuckDuckGo error:");
         console.log(error.message);
+
 
         res.status(500).json({
             error: "DuckDuckGo search failed",
