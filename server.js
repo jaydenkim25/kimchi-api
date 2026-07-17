@@ -1,10 +1,12 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const cheerio = require("cheerio");
 
 const app = express();
 
 app.use(cors());
+app.use(express.json());
 
 
 app.get("/", (req, res) => {
@@ -26,27 +28,67 @@ app.get("/search", async (req, res) => {
     try {
 
         const response = await axios.get(
-            "https://api.duckduckgo.com/",
+            "https://html.duckduckgo.com/html/",
             {
                 params: {
-                    q: query,
-                    format: "json",
-                    no_html: 1,
-                    skip_disambig: 1
+                    q: query
                 },
+
                 headers: {
-                    "User-Agent": "Kimchi Search Engine"
-                }
+                    "User-Agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Kimchi Browser"
+                },
+
+                timeout: 10000
             }
         );
 
 
+        const $ = cheerio.load(response.data);
+
+        let results = [];
+
+
+        $(".result").each((index, element) => {
+
+            const title = $(element)
+                .find(".result__a")
+                .text()
+                .trim();
+
+
+            const url = $(element)
+                .find(".result__a")
+                .attr("href");
+
+
+            const snippet = $(element)
+                .find(".result__snippet")
+                .text()
+                .trim();
+
+
+            if (title && url) {
+
+                results.push({
+                    title,
+                    url,
+                    snippet
+                });
+
+            }
+
+        });
+
+
         res.json({
+
             search: query,
-            overview: response.data.AbstractText || "No overview found",
-            source: response.data.AbstractSource || "DuckDuckGo",
-            sourceURL: response.data.AbstractURL || "",
-            related: response.data.RelatedTopics || []
+
+            count: results.length,
+
+            results
+
         });
 
 
@@ -55,9 +97,13 @@ app.get("/search", async (req, res) => {
         console.log("DuckDuckGo error:");
         console.log(error.message);
 
+
         res.status(500).json({
+
             error: "DuckDuckGo search failed",
+
             details: error.message
+
         });
 
     }
@@ -67,6 +113,9 @@ app.get("/search", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
+
 app.listen(PORT, () => {
+
     console.log(`Kimchi API running on port ${PORT}`);
+
 });
