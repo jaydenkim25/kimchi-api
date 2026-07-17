@@ -35,8 +35,7 @@ app.get("/search", async (req, res) => {
                 },
 
                 headers: {
-                    "User-Agent":
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Kimchi Browser"
+                    "User-Agent": "Mozilla/5.0 Kimchi Browser"
                 },
 
                 timeout: 10000
@@ -71,9 +70,9 @@ app.get("/search", async (req, res) => {
             if (title && url) {
 
                 results.push({
-                    title,
-                    url,
-                    snippet
+                    title: title,
+                    url: url,
+                    snippet: snippet
                 });
 
             }
@@ -82,13 +81,9 @@ app.get("/search", async (req, res) => {
 
 
         res.json({
-
             search: query,
-
             count: results.length,
-
-            results
-
+            results: results
         });
 
 
@@ -97,13 +92,9 @@ app.get("/search", async (req, res) => {
         console.log("DuckDuckGo error:");
         console.log(error.message);
 
-
         res.status(500).json({
-
             error: "DuckDuckGo search failed",
-
             details: error.message
-
         });
 
     }
@@ -115,7 +106,5 @@ const PORT = process.env.PORT || 3000;
 
 
 app.listen(PORT, () => {
-
     console.log(`Kimchi API running on port ${PORT}`);
-
 });
